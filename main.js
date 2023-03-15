@@ -5,6 +5,7 @@ const {selectors} = require('./selectors');
 const {sleep, setChatId, sendMessage, selectChoice, collectInput, yesOrNoQuestion} = require("./helpers");
 
 let driver = null
+let sessionStart = null;
 
 async function retryClickAnElement(selector, numberOfRetries = 10, retrialTimeInSeconds = getConfig(configs.DEFAULT_WAITING_TIME)) {
     let remainingTrials = numberOfRetries;
@@ -25,12 +26,13 @@ async function retryClickAnElement(selector, numberOfRetries = 10, retrialTimeIn
 }
 
 async function retryFindingAppointment() {
-    // the session is 30 minutes, and refresh time is every 5 seconds.
-    let remainingTrials = 30 * 60;
-    while (remainingTrials > 0) {
+    // the session is 30 minutes
+    let sessionInterval = 3600000;
+    while (((new Date() - sessionStart)/sessionInterval) < 0.5) {
+        console.log('time remaining: ', ((new Date() - sessionStart)/sessionInterval));
         try {
             await retryClickAnElement(selectors.findAppointmentButton, 10, 5);
-            await sleep(3000);
+            await sleep(5000);
             if (await checkAvailableAppointment()) {
                 console.log('Found an Appointment 🎉🎉🎉');
                 await sleep(2000);
@@ -38,12 +40,10 @@ async function retryFindingAppointment() {
                 return;
             }
         } catch (e) {
-            console.log(`Element ${selectors.currentActiveStepClass} didn't appear`, remainingTrials);
-        } finally {
-            remainingTrials--;
+            console.log(`Element ${selectors.currentActiveStepClass} didn't appear`);
         }
     }
-
+    throw new Error('Session has been ended');
 }
 
 async function checkAvailableAppointment() {
@@ -64,6 +64,7 @@ async function start() {
         await driver.get(selectors.appointmentWebsiteUrl);
         await driver.findElement(By.xpath(selectors.bookAnAppointmentButtonPath)).click();
 
+        sessionStart = new Date();
         await retryClickAnElement(selectors.agreeButtonPath);
         await retryClickAnElement(selectors.agreeNextButtonXpath);
         await retryClickAnElement(selectors.nationality(getConfig(configs.NATIONALITY_ID)), 20);

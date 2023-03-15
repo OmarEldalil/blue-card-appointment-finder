@@ -30,10 +30,11 @@ async function retryFindingAppointment() {
     while (remainingTrials > 0) {
         try {
             await retryClickAnElement(selectors.findAppointmentButton, 10, 5);
+            await sleep(3000);
             if (await checkAvailableAppointment()) {
                 console.log('Found an Appointment 🎉🎉🎉');
                 await sleep(2000);
-                await sendMessage(driver.getCurrentUrl());
+                await sendMessage(await driver.getCurrentUrl());
                 return;
             }
         } catch (e) {

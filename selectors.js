@@ -11,5 +11,5 @@ exports.selectors = {
     employmentReason: '//*[@id="xi-div-30"]/div[5]/div[1]/div[3]/label',
     blueCard: '//*[@id="xi-div-30"]/div[5]/div[1]/div[4]/div/div[last()]/label',
     findAppointmentButton: '//*[@id="applicationForm:managedForm:proceed"]',
-    currentActiveStepClass: 'antcl_active'
+    currentActiveStep: '//*[@class="antcl_active"]'
 }
